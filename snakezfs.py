@@ -1,4 +1,4 @@
-#!ENV/bin/python
+#!/usr/bin/python
 
 import time
 import sys
@@ -15,8 +15,8 @@ class ArgParser(argparse.ArgumentParser):
 
 
 def create_snapshot(timestamp, pool, filesystem):
-    options = "snapshot %s/%s@%s" % (pool, filesystem, timestamp)
-    process = subprocess.Popen(['zfs', options], stdout=subprocess.PIPE)
+    options = "%s/%s@%s" % (pool, filesystem, timestamp)
+    process = subprocess.Popen(['zfs', 'snapshot', options], stdout=subprocess.PIPE)
     out,err = process.communicate()
     print out
 
