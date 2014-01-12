@@ -18,9 +18,9 @@ def create_snapshot(timestamp, pool, filesystem):
     # create filesystem
     devnull = open('/dev/null', 'w')
     process_create = subprocess.Popen(['zfs', 'create', pool + '/' + filesystem], stdout=devnull)
-    out,err = process_create.communicate()
-    print 'create error: ', err
-    print 'create output: ', out
+    #out,err = process_create.communicate()
+    #print 'create error: ', err
+    #print 'create output: ', out
 
     # add a new snapshot
     options = "%s/%s@%s" % (pool, filesystem, timestamp)
