@@ -28,7 +28,7 @@ def create_snapshot(timestamp, pool, filesystem):
 
 def send_backup(timestamp, pool, filesystem, user, hostname, incremental, prev):
     if incremental:
-        command = "zfs send -i %s %s/test@%s | zfs recv %s/testback" % (prev, pool, timestamp, pool)
+        command = "zfs send -i %s %s/test@%s | zfs recv -F %s/testback" % (prev, pool, timestamp, pool)
     else:
         command = "zfs send %s/%s@%s | zfs recv %s/testback" % (pool, filesystem, timestamp, pool)
 
