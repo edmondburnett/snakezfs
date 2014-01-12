@@ -52,6 +52,8 @@ def main():
 
     timestamp = time.strftime("%m-%d-%Y_%H:%M")
 
+    print args.incremental
+
     create_snapshot(timestamp, args.pool, args.fsname)
     send_backup(timestamp, args.pool, args.fsname, args.user, args.hostname)
 
