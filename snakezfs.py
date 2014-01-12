@@ -28,6 +28,7 @@ def create_snapshot(timestamp, pool, filesystem):
 
 def send_backup(timestamp, pool, filesystem, user, hostname):
     command = "zfs send %s/%s@%s | zfs recv %s/testback" % (pool, filesystem, timestamp, pool)
+    subprocess.call(command, shell=True)
 
 
 
