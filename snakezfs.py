@@ -15,18 +15,20 @@ class ArgParser(argparse.ArgumentParser):
 
 
 def create_snapshot(timestamp, pool, filesystem):
-    # create filesystem
+    # create filesystem, ignore if already exists
     devnull = open('/dev/null', 'w')
-    process_create = subprocess.Popen(['zfs', 'create', pool + '/' + filesystem],
+    subprocess.Popen(['zfs', 'create', pool + '/' + filesystem],
             stdout=devnull, stderr=devnull)
-    out,err = process_create.communicate()
-    print 'create error: ', err
-    print 'create output: ', out
 
     # add a new snapshot
     options = "%s/%s@%s" % (pool, filesystem, timestamp)
     process_snapshot = subprocess.Popen(['zfs', 'snapshot', options], stdout=subprocess.PIPE)
     out,err = process_snapshot.communicate()
+
+
+def send_backup(timestamp, pool, filesystem, user, hostname):
+    command = "zfs send %s/%s@%s | zfs recv %s/testback" % (pool, filesystem, timestamp, pool)
+
 
 
 def main():
@@ -50,6 +52,7 @@ def main():
     timestamp = time.strftime("%m-%d-%Y_%H:%M")
 
     create_snapshot(timestamp, args.pool, args.fsname)
+    send_backup(timestamp, args.pool, args.fsname, args.user, args.hostname)
 
 
 
