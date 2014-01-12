@@ -28,8 +28,8 @@ def create_snapshot(timestamp, pool, filesystem):
 
 def send_backup(timestamp, pool, filesystem, user, hostname, incremental):
     if incremental:
-        previous = subprocess.call('zfs list -o name -t snapshot | grep testback', shell=True)
-        command = "zfs send -i %s %s/%s@%s | zfs recv %s/testback" % (previous, pool, filesystem, timestamp, pool)
+        previous = subprocess.check_output('zfs list -o name -t snapshot | grep testback', shell=True).split('\n')
+        command = "zfs send -i %s %s/%s@%s | zfs recv %s/testback" % (previous[-1], pool, filesystem, timestamp, pool)
     else:
         command = "zfs send %s/%s@%s | zfs recv %s/testback" % (pool, filesystem, timestamp, pool)
 
@@ -56,8 +56,6 @@ def main():
         sys.exit()
 
     timestamp = time.strftime("%m-%d-%Y_%H:%M")
-
-    print args.incremental
 
     create_snapshot(timestamp, args.pool, args.fsname)
     send_backup(timestamp, args.pool, args.fsname, args.user, args.hostname, args.incremental)
