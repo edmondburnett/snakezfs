@@ -18,6 +18,7 @@ def create_snapshot(timestamp, pool, filesystem):
     # create filesystem
     process_create = subprocess.Popen(['zfs', 'create', pool + '/' + filesystem], stdout=subprocess.PIPE)
     out,err = process_create.communicate()
+    if err:
         print 'Filesystem already exists in this pool, ignoring.'
 
     # add a new snapshot
