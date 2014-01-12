@@ -14,7 +14,7 @@ class ArgParser(argparse.ArgumentParser):
         sys.exit(2)
 
 
-def create_snapshot(timestamp, pool, filesystem, user, hostname):
+def create_snapshot(timestamp, pool, filesystem):
     options = "snapshot %s/%s@%s" % (pool, filesystem, timestamp)
     process = subprocess.Popen(['zfs', options], stdout=subprocess.PIPE)
     out,err = process.communicate()
@@ -41,7 +41,7 @@ def main():
 
     timestamp = time.strftime("%m-%d-%Y_%H:%M")
 
-    create_snapshot(timestamp, args.pool, args.user, args.hostname)
+    create_snapshot(timestamp, args.pool, args.fsname)
 
 
 

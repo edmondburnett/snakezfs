@@ -18,10 +18,13 @@ The user account that runs the script must have an SSH public key added
 to the remote server's ~/.ssh/authorized\_keys file. Test the login first by
 SSH'ing into the remote server. If this is the first login, you will need to
 accept the prompt for adding the server to your list of known hosts.
+
 `ssh <username>@<hostname>`
 
 Create a snapshot and perform a full backup:
+
 `./snakezfs.py <pool name> <username> <hostname>`
 
 Create a snapshot and perform an incremental backup:
+
 `./snakezfs.py -i <pool name> <username> <hostname>`
