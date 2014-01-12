@@ -16,10 +16,11 @@ class ArgParser(argparse.ArgumentParser):
 
 def create_snapshot(timestamp, pool, filesystem):
     # create filesystem
-    process_create = subprocess.Popen(['zfs', 'create', pool + '/' + filesystem], stdout=subprocess.PIPE)
+    devnull = open('/dev/null', 'w')
+    process_create = subprocess.Popen(['zfs', 'create', pool + '/' + filesystem], stdout=devnull)
     out,err = process_create.communicate()
-    if err:
-        print 'Filesystem already exists in this pool, ignoring.'
+    print 'create error: ', err
+    print 'create output: ', out
 
     # add a new snapshot
     options = "%s/%s@%s" % (pool, filesystem, timestamp)
