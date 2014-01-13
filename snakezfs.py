@@ -55,9 +55,9 @@ def main():
     # get the last snapshot name (if incremental)
     prev = None
     if args.incremental:
-        snapshot_list = subprocess.check_output('zfs list -o name -t snapshot | grep test@', shell=True).split('\n')
+        snapshot_list = subprocess.check_output('zfs list -o name -t snapshot | grep @backup_', shell=True).split('\n')
         previous = filter(None, snapshot_list)
-        print 'previous snapshot: ', previous[-1]
+        print 'num of snapshots: ', len(previous)
         prev = previous[-1]
 
     # create a new snapshot
