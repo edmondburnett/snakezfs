@@ -41,7 +41,7 @@ def remove_snapshots(previous, num):
         to_remove = previous[:last_index]
         for snapshot in to_remove:
             print 'removing', snapshot
-            subprocess.call('zfs destroy %s' % snapshot)
+            subprocess.call(['zfs', 'destroy', snapshot])
 
 
 def main():
