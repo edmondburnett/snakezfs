@@ -30,6 +30,19 @@ def send_backup(timestamp, pool, fsname, user, hostname, incremental, prev):
     subprocess.call(command, shell=True)
 
 
+def remove_snapshots(previous, num):
+    """ Purge excess snapshots from source system.
+
+        previous: a list of snapshot names
+        num: int, the number of snapshots to retain
+    """
+    if len(previous) > num:
+        last_index = len(previous) - num
+        to_remove = previous[:last_index]
+        for snapshot in to_remove:
+            subprocess.call('zfs destroy %s' % snapshot)
+
+
 def main():
     # handle command line arguments
     parser = ArgParser()
@@ -46,15 +59,19 @@ def main():
         sys.exit()
 
     timestamp = time.strftime("%m-%d-%Y_%H:%M")
+    prev = None
+    previous = []
 
     # get the last snapshot name (if incremental)
-    prev = None
     if args.incremental:
         snapshot_list = subprocess.check_output('zfs list -o name -t snapshot | grep @backup_', shell=True).split('\n')
         previous = filter(None, snapshot_list)
         print 'num of snapshots: ', len(previous)
         print previous
         prev = previous[-1]
+
+    # remove old snapshots
+    remove_snapshots(previous, 7)
 
     # create a new snapshot
     create_snapshot(timestamp, args.pool)
