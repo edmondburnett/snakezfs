@@ -53,6 +53,7 @@ def main():
         snapshot_list = subprocess.check_output('zfs list -o name -t snapshot | grep @backup_', shell=True).split('\n')
         previous = filter(None, snapshot_list)
         print 'num of snapshots: ', len(previous)
+        print previous
         prev = previous[-1]
 
     # create a new snapshot
