@@ -30,18 +30,14 @@ def send_backup(timestamp, pool, filesystem, user, hostname, incremental, prev):
     if incremental:
         command = "zfs send -i %s %s/test@%s | zfs recv -F %s/testback" % (prev, pool, timestamp, pool)
     else:
-        command = "zfs send %s/%s@%s | zfs recv %s/testback" % (pool, filesystem, timestamp, pool)
+        command = "zfs send %s/%s@%s | ssh %s@%s zfs recv %s/testback" % (pool, filesystem, timestamp, user, hostname, pool)
 
     subprocess.call(command, shell=True)
-
 
 
 def main():
     # handle command line arguments
     parser = ArgParser()
-
-    #parser.add_argument("-c", "--create", help="Create new ZFS snapshot", action="store_true")
-    #parser.add_argument("-s", "--send", help="Send ZFS snapshot", action="store_true")
     parser.add_argument("pool", help="name of ZFS pool")
     parser.add_argument("fsname", help="name of ZFS backup file system")
     parser.add_argument("user", help="username for backup server SSH login")
@@ -56,7 +52,7 @@ def main():
 
     timestamp = time.strftime("%m-%d-%Y_%H:%M")
 
-    # get previous snapshot name if incremental
+    # get the last snapshot name (if incremental)
     prev = None
     if args.incremental:
         snapshot_list = subprocess.check_output('zfs list -o name -t snapshot | grep test@', shell=True).split('\n')
@@ -64,9 +60,11 @@ def main():
         print 'previous snapshot: ', previous[-1]
         prev = previous[-1]
 
+    # create a new snapshot
     create_snapshot(timestamp, args.pool, args.fsname)
-    send_backup(timestamp, args.pool, args.fsname, args.user, args.hostname, args.incremental, prev)
 
+    # send snapshot to backup server
+    send_backup(timestamp, args.pool, args.fsname, args.user, args.hostname, args.incremental, prev)
 
 
 if __name__ == '__main__':
