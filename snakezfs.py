@@ -15,25 +15,18 @@ class ArgParser(argparse.ArgumentParser):
 
 
 def create_snapshot(timestamp, pool):
-    # create filesystem, ignore if already exists
-    #devnull = open('/dev/null', 'w')
-    #subprocess.Popen(['zfs', 'create', pool + '/' + filesystem],
-    #        stdout=devnull, stderr=devnull)
-
-    # add a new snapshot
+    """ Create a new local snapshot """
     options = "%s@backup_%s" % (pool, timestamp)
     process_snapshot = subprocess.Popen(['zfs', 'snapshot', options], stdout=subprocess.PIPE)
     out,err = process_snapshot.communicate()
 
 
 def send_backup(timestamp, pool, fsname, user, hostname, incremental, prev):
+    """ Send the snapshot to the remote server """
     if incremental:
-        print 'hitting incremental if inside send_backup'
         command = "zfs send -i %s %s@backup_%s | ssh %s@%s zfs recv -F %s/%s" % (prev, pool, timestamp, user, hostname, pool, fsname)
-        print 'command: ', command
     else:
         command = "zfs send %s@backup_%s | ssh %s@%s zfs recv %s/%s" % (pool, timestamp, user, hostname, pool, fsname)
-
     subprocess.call(command, shell=True)
 
 
@@ -41,7 +34,7 @@ def main():
     # handle command line arguments
     parser = ArgParser()
     parser.add_argument("pool", help="name of ZFS pool")
-    parser.add_argument("fsname", help="name of ZFS backup file system")
+    parser.add_argument("fsname", help="name of remote file system")
     parser.add_argument("user", help="username for backup server SSH login")
     parser.add_argument("hostname", help="hostname or IP address of remote backup server")
     parser.add_argument("-i", "--incremental", help="perform an incremental backup", action="store_true")
