@@ -61,7 +61,7 @@ def main():
         prev = previous[-1]
 
     # create a new snapshot
-    create_snapshot(timestamp, args.pool, args.fsname)
+    create_snapshot(timestamp, args.pool)
 
     # send snapshot to backup server
     send_backup(timestamp, args.pool, args.fsname, args.user, args.hostname, args.incremental, prev)
