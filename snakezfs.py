@@ -14,23 +14,23 @@ class ArgParser(argparse.ArgumentParser):
         sys.exit(2)
 
 
-def create_snapshot(timestamp, pool, filesystem):
+def create_snapshot(timestamp, pool):
     # create filesystem, ignore if already exists
-    devnull = open('/dev/null', 'w')
-    subprocess.Popen(['zfs', 'create', pool + '/' + filesystem],
-            stdout=devnull, stderr=devnull)
+    #devnull = open('/dev/null', 'w')
+    #subprocess.Popen(['zfs', 'create', pool + '/' + filesystem],
+    #        stdout=devnull, stderr=devnull)
 
     # add a new snapshot
-    options = "%s/%s@%s" % (pool, filesystem, timestamp)
+    options = "%s@backup_%s" % (pool, timestamp)
     process_snapshot = subprocess.Popen(['zfs', 'snapshot', options], stdout=subprocess.PIPE)
     out,err = process_snapshot.communicate()
 
 
-def send_backup(timestamp, pool, filesystem, user, hostname, incremental, prev):
+def send_backup(timestamp, pool, fsname, user, hostname, incremental, prev):
     if incremental:
-        command = "zfs send -i %s %s/test@%s | zfs recv -F %s/testback" % (prev, pool, timestamp, pool)
+        command = "zfs send -i %s %s@backup_%s | zfs recv -F %s/%s" % (prev, pool, timestamp, pool, fsname)
     else:
-        command = "zfs send %s/%s@%s | ssh %s@%s zfs recv %s/testback" % (pool, filesystem, timestamp, user, hostname, pool)
+        command = "zfs send %s@backup_%s | ssh %s@%s zfs recv %s/%s" % (pool, timestamp, user, hostname, pool, fsname)
 
     subprocess.call(command, shell=True)
 
