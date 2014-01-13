@@ -60,8 +60,9 @@ def main():
     prev = None
     if args.incremental:
         snapshot_list = subprocess.check_output('zfs list -o name -t snapshot | grep test@', shell=True).split('\n')
-        prev = filter(None, snapshot_list)[-1]
-        print 'previous snapshot: ', prev[-1]
+        previous = filter(None, snapshot_list)
+        print 'previous snapshot: ', previous[-1]
+        prev = previous[-1]
 
     create_snapshot(timestamp, args.pool, args.fsname)
     send_backup(timestamp, args.pool, args.fsname, args.user, args.hostname, args.incremental, prev)
