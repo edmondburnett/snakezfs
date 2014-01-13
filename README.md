@@ -1,5 +1,5 @@
-What is SnakeZFS
-================
+SnakeZFS
+========
 SnakeZFS is a simple Python script for performing ZFS snapshot and send/receive 
 operations. It was built to meet a specific need of a client.
 

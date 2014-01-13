@@ -21,12 +21,18 @@ def create_snapshot(timestamp, pool):
     out,err = process_snapshot.communicate()
 
 
-def send_backup(timestamp, pool, fsname, user, hostname, incremental, prev):
+def send_backup(timestamp, pool, fsname, user, hostname, incremental, netcat, prev):
     """ Send the snapshot to the remote server """
     if incremental:
-        command = "zfs send -i %s %s@backup_%s | ssh %s@%s zfs recv -F %s/%s" % (prev, pool, timestamp, user, hostname, pool, fsname)
+        if netcat:
+            command = "zfs send -i %s %s@backup_%s | nc -w 30 %s 8023" % (prev, pool, timestamp, hostname)
+        else:
+            command = "zfs send -i %s %s@backup_%s | ssh %s@%s zfs recv -F %s/%s" % (prev, pool, timestamp, user, hostname, pool, fsname)
     else:
-        command = "zfs send %s@backup_%s | ssh %s@%s zfs recv %s/%s" % (pool, timestamp, user, hostname, pool, fsname)
+        if netcat:
+            command = "zfs send %s@backup_%s | nc %s 8023" % (pool, timestamp, hostname)
+        else:
+            command = "zfs send %s@backup_%s | ssh %s@%s zfs recv %s/%s" % (pool, timestamp, user, hostname, pool, fsname)
     subprocess.call(command, shell=True)
 
 
@@ -51,6 +57,7 @@ def main():
     parser.add_argument("user", help="username for backup server SSH login")
     parser.add_argument("hostname", help="hostname or IP address of remote backup server")
     parser.add_argument("-i", "--incremental", help="perform an incremental backup", action="store_true")
+    parser.add_argument("-n", "--netcat", help="send using netcat (trusted networks only, must open target connection manually)", action="store_true")
     args = parser.parse_args()
 
     # print help if no arguments specified
@@ -75,7 +82,7 @@ def main():
     create_snapshot(timestamp, args.pool)
 
     # send snapshot to backup server
-    send_backup(timestamp, args.pool, args.fsname, args.user, args.hostname, args.incremental, prev)
+    send_backup(timestamp, args.pool, args.fsname, args.user, args.hostname, args.incremental, args.netcat, prev)
 
 
 if __name__ == '__main__':
