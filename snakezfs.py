@@ -28,7 +28,9 @@ def create_snapshot(timestamp, pool):
 
 def send_backup(timestamp, pool, fsname, user, hostname, incremental, prev):
     if incremental:
+        print 'hitting incremental if inside send_backup'
         command = "zfs send -i %s %s@backup_%s | zfs recv -F %s/%s" % (prev, pool, timestamp, pool, fsname)
+        print 'command: ', command
     else:
         command = "zfs send %s@backup_%s | ssh %s@%s zfs recv %s/%s" % (pool, timestamp, user, hostname, pool, fsname)
 

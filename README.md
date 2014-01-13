@@ -1,9 +1,9 @@
 What is SnakeZFS
 ================
 SnakeZFS is a simple Python script for performing ZFS snapshot and send/receive 
-operations.
+operations. It was built to meet a specific need of a client.
 
-A typical use case is to run with a cron job at regular intervals, sending
+The typical use case is to run with a cron job at regular intervals, sending
 the backup(s) to a remote server via SSH.
 
 Compatibility
