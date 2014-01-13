@@ -23,8 +23,13 @@ accept the prompt for adding the server to your list of known hosts.
 
 Create a snapshot and perform a full backup:
 
-`./snakezfs.py <pool name> <username> <hostname>`
+`./snakezfs.py <pool name> <remote filesystem name> <username> <hostname>`
 
 Create a snapshot and perform an incremental backup:
 
-`./snakezfs.py -i <pool name> <username> <hostname>`
+`./snakezfs.py -i <pool name> <remote filesystem name> <username> <hostname>`
+
+Example:
+
+`./snakezfs.py -i tank tank_backup root backup_server`
+

@@ -34,13 +34,12 @@ def remove_snapshots(previous, num):
     """ Purge excess snapshots from source system.
 
         previous: a list of snapshot names
-        num: int, the number of snapshots to retain
+        num: int of the max number of snapshots to retain
     """
     if len(previous) > num:
         last_index = len(previous) - num
         to_remove = previous[:last_index]
         for snapshot in to_remove:
-            print 'removing', snapshot
             subprocess.call(['zfs', 'destroy', snapshot])
 
 
@@ -67,7 +66,6 @@ def main():
     if args.incremental:
         snapshot_list = subprocess.check_output('zfs list -o name -t snapshot | grep @backup_', shell=True).split('\n')
         previous = filter(None, snapshot_list)
-        print 'num of snapshots: ', len(previous)
         prev = previous[-1]
 
     # remove old snapshots
