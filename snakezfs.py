@@ -40,6 +40,7 @@ def remove_snapshots(previous, num):
         last_index = len(previous) - num
         to_remove = previous[:last_index]
         for snapshot in to_remove:
+            print 'removing', snapshot
             subprocess.call('zfs destroy %s' % snapshot)
 
 
@@ -67,7 +68,6 @@ def main():
         snapshot_list = subprocess.check_output('zfs list -o name -t snapshot | grep @backup_', shell=True).split('\n')
         previous = filter(None, snapshot_list)
         print 'num of snapshots: ', len(previous)
-        print previous
         prev = previous[-1]
 
     # remove old snapshots
