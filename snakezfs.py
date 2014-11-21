@@ -7,6 +7,7 @@ import subprocess
 
 
 class ArgParser(argparse.ArgumentParser):
+
     """ Override default behaviour of argparse errors """
     def error(self, message):
         sys.stderr.write('ERROR: %s\n' % message)
@@ -17,22 +18,27 @@ class ArgParser(argparse.ArgumentParser):
 def create_snapshot(timestamp, pool):
     """ Create a new local snapshot """
     options = "%s@backup_%s" % (pool, timestamp)
-    process_snapshot = subprocess.Popen(['zfs', 'snapshot', options], stdout=subprocess.PIPE)
-    out,err = process_snapshot.communicate()
+    process_snapshot = subprocess.Popen(
+        ['zfs', 'snapshot', options], stdout=subprocess.PIPE)
+    out, err = process_snapshot.communicate()
 
 
 def send_backup(timestamp, pool, fsname, user, hostname, incremental, netcat, prev):
     """ Send the snapshot to the remote server """
     if incremental:
         if netcat:
-            command = "zfs send -i %s %s@backup_%s | nc -w 30 %s 8023" % (prev, pool, timestamp, hostname)
+            command = "zfs send -i %s %s@backup_%s | nc -w 30 %s 8023" % (
+                prev, pool, timestamp, hostname)
         else:
-            command = "zfs send -i %s %s@backup_%s | ssh %s@%s zfs recv -F %s/%s" % (prev, pool, timestamp, user, hostname, pool, fsname)
+            command = "zfs send -i %s %s@backup_%s | ssh %s@%s zfs recv -F %s/%s" % (
+                prev, pool, timestamp, user, hostname, pool, fsname)
     else:
         if netcat:
-            command = "zfs send %s@backup_%s | nc %s 8023" % (pool, timestamp, hostname)
+            command = "zfs send %s@backup_%s | nc %s 8023" % (
+                pool, timestamp, hostname)
         else:
-            command = "zfs send %s@backup_%s | ssh %s@%s zfs recv %s/%s" % (pool, timestamp, user, hostname, pool, fsname)
+            command = "zfs send %s@backup_%s | ssh %s@%s zfs recv %s/%s" % (
+                pool, timestamp, user, hostname, pool, fsname)
     subprocess.call(command, shell=True)
 
 
@@ -55,9 +61,12 @@ def main():
     parser.add_argument("pool", help="name of ZFS pool")
     parser.add_argument("fsname", help="name of remote file system")
     parser.add_argument("user", help="username for backup server SSH login")
-    parser.add_argument("hostname", help="hostname or IP address of remote backup server")
-    parser.add_argument("-i", "--incremental", help="perform an incremental backup", action="store_true")
-    parser.add_argument("-n", "--netcat", help="send using netcat (trusted networks only, must open target connection manually)", action="store_true")
+    parser.add_argument(
+        "hostname", help="hostname or IP address of remote backup server")
+    parser.add_argument(
+        "-i", "--incremental", help="perform an incremental backup", action="store_true")
+    parser.add_argument(
+        "-n", "--netcat", help="send using netcat (trusted networks only, must open target connection manually)", action="store_true")
     args = parser.parse_args()
 
     # print help if no arguments specified
@@ -71,7 +80,8 @@ def main():
 
     # get the last snapshot name (if incremental)
     if args.incremental:
-        snapshot_list = subprocess.check_output('zfs list -o name -t snapshot | grep @backup_', shell=True).split('\n')
+        snapshot_list = subprocess.check_output(
+            'zfs list -o name -t snapshot | grep @backup_', shell=True).split('\n')
         previous = filter(None, snapshot_list)
         prev = previous[-1]
 
@@ -82,7 +92,8 @@ def main():
     create_snapshot(timestamp, args.pool)
 
     # send snapshot to backup server
-    send_backup(timestamp, args.pool, args.fsname, args.user, args.hostname, args.incremental, args.netcat, prev)
+    send_backup(timestamp, args.pool, args.fsname, args.user,
+                args.hostname, args.incremental, args.netcat, prev)
 
 
 if __name__ == '__main__':
