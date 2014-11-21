@@ -2,9 +2,13 @@
 
 import time
 import sys
+import fcntl
+import errno
 import argparse
 import subprocess
 
+
+LOCK_PATH = "/tmp/snakezfs.lock"
 
 class ArgParser(argparse.ArgumentParser):
 
@@ -67,12 +71,23 @@ def main():
         "-i", "--incremental", help="perform an incremental backup", action="store_true")
     parser.add_argument(
         "-n", "--netcat", help="send using netcat (trusted networks only, must open target connection manually)", action="store_true")
+    parser.add_argument(
+        "-l", "--lock", help="allow only one instance of snakezfs to be running at the same point of time", action="store_true")
     args = parser.parse_args()
 
     # print help if no arguments specified
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit()
+
+    if args.lock:
+        lock_file = open(LOCK_PATH, 'w')
+        try:
+            fcntl.lockf(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except IOError as e:
+            if e.errno == errno.EACCES or e.errno == errno.EAGAIN:
+                sys.stderr.write("Another instance is already running.")
+                sys.exit(3)
 
     timestamp = time.strftime("%m-%d-%Y_%H:%M")
     prev = None
